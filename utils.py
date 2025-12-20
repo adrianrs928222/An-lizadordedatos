@@ -7,11 +7,11 @@ def calcular_1x2(lambda_local, lambda_visitante, max_goles=10):
     p_local = 0
     p_empate = 0
     p_visitante = 0
-    for i in range(max_goles+1):
-        for j in range(max_goles+1):
+    for i in range(max_goles + 1):
+        for j in range(max_goles + 1):
             p = poisson(i, lambda_local) * poisson(j, lambda_visitante)
             if i > j: p_local += p
-            elif i==j: p_empate += p
+            elif i == j: p_empate += p
             else: p_visitante += p
     return round(p_local*100,1), round(p_empate*100,1), round(p_visitante*100,1)
 
