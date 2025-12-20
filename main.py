@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 from utils import calcular_1x2, ambos_marcan, mas_menos_goles
@@ -17,25 +17,20 @@ app.add_middleware(
 
 @app.get("/matches")
 def get_matches():
-    params = {
+    response = requests.get(BASE_URL, params={
         "sport": "soccer",
         "region": "EU",
         "mkt": "h2h",
         "apiKey": API_KEY
-    }
-    response = requests.get(BASE_URL, params=params)
+    })
     data = response.json()
-
     matches_list = []
+
     for partido in data.get("matches", []):
         local = partido["home_team"]
         visitante = partido["away_team"]
-
-        # Promedios históricos / λ - ejemplo
         lambda_local = 1.4
         lambda_visitante = 1.1
-
-        # IA básica: calcular probabilidades 1X2
         p_local, p_empate, p_visitante = calcular_1x2(lambda_local, lambda_visitante)
 
         cuotas = partido["bookmakers"][0]["markets"][0]["outcomes"]
@@ -48,9 +43,17 @@ def get_matches():
             "prob_IA_local": p_local,
             "prob_IA_empate": p_empate,
             "prob_IA_visitante": p_visitante,
-            "mas_menos": mas_menos_goles(lambda_local + lambda_visitante),
+            "mas_menos": mas_menos_goles(lambda_local+lambda_visitante),
             "ambos_marcan": ambos_marcan(lambda_local, lambda_visitante),
-            "mejores_cuotas": {b["title"]: [o["price"] for o in b["markets"][0]["outcomes"]] 
+            "mejores_cuotas": {b["title"]: [o["price"] for o in b["markets"][0]["outcomes"]]
                                 for b in partido.get("bookmakers", [])}
         })
     return matches_list
+
+# WebSocket para actualizar en tiempo real
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        matches = get_matches()
+        await websocket.send_json(matches)
