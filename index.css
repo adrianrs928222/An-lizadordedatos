@@ -1,8 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Colores estilo Bet365 */
 .text-success { color: #00c853; }
 .text-alert { color: #ff1744; }
 .text-info { color: #2979ff; }
