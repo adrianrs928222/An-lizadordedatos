@@ -5,14 +5,12 @@ import requests
 from utils import calcular_1x2, ambos_marcan, mas_menos_goles
 from dotenv import load_dotenv
 
-# Carga variables de entorno
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.odds-api.io/v4/odds"
 
-app = FastAPI(title="Backend Bet365 Nivel Dios", version="1.0.0")
+app = FastAPI(title="Análisis Deportivo IA Ultra Pro", version="2.0.0")
 
-# Permitir CORS para frontend en cualquier dominio
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,8 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/matches")
-def get_matches():
+def obtener_partidos():
     try:
         response = requests.get(BASE_URL, params={
             "sport": "soccer",
@@ -35,12 +32,11 @@ def get_matches():
         return {"error": str(e)}
 
     matches_list = []
-
     for partido in data.get("matches", []):
         local = partido["home_team"]
         visitante = partido["away_team"]
 
-        # Parámetros IA (puedes mejorar con estadísticas reales)
+        # IA básica avanzada
         lambda_local = 1.4
         lambda_visitante = 1.1
         p_local, p_empate, p_visitante = calcular_1x2(lambda_local, lambda_visitante)
@@ -62,10 +58,13 @@ def get_matches():
         })
     return matches_list
 
-# WebSocket opcional para frontend en tiempo real
+@app.get("/matches")
+def get_matches():
+    return obtener_partidos()
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
-        matches = get_matches()
-        await websocket.send_json(matches)
+        partidos = obtener_partidos()
+        await websocket.send_json(partidos)
