@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Opcional: colores estilo Bet365 */
+.text-success { color: #00c853; } /* verde */
+.text-alert { color: #ff1744; }    /* rojo */
+.text-info { color: #2979ff; }     /* azul */
