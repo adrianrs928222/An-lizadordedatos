@@ -10,7 +10,11 @@ export default function MatchCard({ match }) {
       onMouseLeave={() => setHover(false)}
     >
       <h2 className="text-xl font-bold mb-2">{match.local} vs {match.visitante}</h2>
+      
       <p className="mb-1">Victoria local: {match.cuota_local} | Empate: {match.cuota_empate} | Victoria visitante: {match.cuota_visitante}</p>
+      
+      <p className="mb-1 text-green-400">Prob IA: Local {match.prob_IA_local}% | Empate {match.prob_IA_empate}% | Visitante {match.prob_IA_visitante}%</p>
+      
       <p className="mb-1">{match.mas_menos}</p>
       <p className="mb-1">Ambos marcan: {match.ambos_marcan}</p>
 
