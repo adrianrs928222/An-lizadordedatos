@@ -1,36 +1,44 @@
 import React, { useEffect, useState } from "react";
-import MatchCard from "./MatchCard";
-import Filters from "./Filters";
-import './index.css';
+import MatchCards from "./MatchCards.jsx";
+import Filters from "./Filters.jsx";
+import SearchBar from "./SearchBar.jsx";
+import ReactDOM from "react-dom";
 
-export default function App() {
+function App() {
   const [matches, setMatches] = useState([]);
-  const [filteredMatches, setFilteredMatches] = useState([]);
-  const [filters, setFilters] = useState({liga: "Todas", fecha: "Todas"});
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const ws = new WebSocket("ws://127.0.0.1:8000/ws");
+    const ws = new WebSocket("wss://analizadordedatos.onrender.com/ws");
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setMatches(data);
+      setMatches(JSON.parse(event.data));
     };
+    ws.onerror = (err) => console.error("WebSocket error:", err);
     return () => ws.close();
   }, []);
 
-  useEffect(() => {
-    let fMatches = matches;
-    if(filters.liga !== "Todas") fMatches = fMatches.filter(m => m.liga === filters.liga);
-    if(filters.fecha !== "Todas") fMatches = fMatches.filter(m => m.fecha === filters.fecha);
-    setFilteredMatches(fMatches);
-  }, [filters, matches]);
+  const filteredMatches = matches
+    .filter((m) => {
+      if (filter === "ambos_si") return m.ambos_marcan === "Sí";
+      if (filter === "mas_goles") return m.mas_menos === "Más de 2,5 goles";
+      return true;
+    })
+    .filter((m) =>
+      m.local.toLowerCase().includes(search.toLowerCase()) ||
+      m.visitante.toLowerCase().includes(search.toLowerCase())
+    );
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white p-6">
-      <h1 className="text-4xl font-bold mb-6">Mi Bet365 Web PRO Nivel Dios 😎</h1>
-      <Filters filters={filters} setFilters={setFilters}/>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-        {filteredMatches.map((match, idx) => <MatchCard key={idx} match={match}/>)}
-      </div>
+    <div style={{ padding: "20px" }}>
+      <h1>Análisis Deportivo IA Ultra Pro</h1>
+      <SearchBar setSearch={setSearch} />
+      <Filters setFilter={setFilter} />
+      {filteredMatches.map((match, index) => (
+        <MatchCards key={index} match={match} />
+      ))}
     </div>
   );
 }
+
+ReactDOM.render(<App />, document.getElementById("root"));
