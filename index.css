@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Opcional: colores estilo Bet365 */
-.text-success { color: #00c853; } /* verde */
-.text-alert { color: #ff1744; }    /* rojo */
-.text-info { color: #2979ff; }     /* azul */
+/* Colores estilo Bet365 */
+.text-success { color: #00c853; }
+.text-alert { color: #ff1744; }
+.text-info { color: #2979ff; }
